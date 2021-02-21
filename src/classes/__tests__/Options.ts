@@ -71,7 +71,7 @@ test('Parsing Options', () => {
     cleanPath(path.resolve(__dirname, '..', '..', '..', 'files', 'abc123'));
 
     // test missing options in json
-    const defaults = deepMerge({}, defaultOptions);
+    const defaults = deepMerge(false, {}, defaultOptions);
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
     delete defaults.crafting.metals;
     expect(defaults.crafting).toEqual({ weapons: { enable: true } });

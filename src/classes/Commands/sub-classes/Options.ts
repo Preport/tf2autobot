@@ -36,7 +36,7 @@ export default class OptionsCommands {
     }
 
     async optionsCommand(steamID: SteamID, message: string): Promise<void> {
-        const liveOptions = deepMerge({}, this.bot.options) as JsonOptions;
+        const liveOptions = deepMerge(false, {}, this.bot.options) as JsonOptions;
         // remove any CLI stuff
         removeCliOptions(liveOptions);
 
@@ -164,7 +164,7 @@ export default class OptionsCommands {
         const params = CommandParser.parseParams(CommandParser.removeCommand(message)) as unknown;
 
         const optionsPath = getOptionsPath(opt.steamAccountName);
-        const saveOptions = deepMerge({}, opt) as JsonOptions;
+        const saveOptions = deepMerge(false, {}, opt) as JsonOptions;
         removeCliOptions(saveOptions);
 
         if (Object.keys(params).length === 0) {
@@ -190,7 +190,11 @@ export default class OptionsCommands {
             knownParams.discordWebhook.embedColor = String(knownParams.discordWebhook.embedColor);
         }
 
-        const result: JsonOptions = deepMerge(saveOptions, knownParams);
+        log.debug('knownParams', {
+            knownParams
+        });
+
+        const result: JsonOptions = deepMerge(true, saveOptions, knownParams);
 
         const errors = validator(result, 'options');
         if (errors !== null) {
@@ -206,7 +210,7 @@ export default class OptionsCommands {
 
         fsp.writeFile(optionsPath, JSON.stringify(saveOptions, null, 4), { encoding: 'utf8' })
             .then(() => {
-                deepMerge(opt, saveOptions);
+                deepMerge(false, opt, saveOptions);
                 const msg = '✅ Updated options!';
 
                 if (knownParams.miscSettings?.game?.playOnlyTF2 === true) {

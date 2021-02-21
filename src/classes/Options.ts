@@ -1823,14 +1823,14 @@ function lintAllTheThings(directory: string): void {
 
 function loadJsonOptions(optionsPath: string, options?: Options): JsonOptions {
     let fileOptions;
-    const workingDefault = deepMerge({}, DEFAULTS);
-    const incomingOptions = options ? deepMerge({}, options) : deepMerge({}, DEFAULTS);
+    const workingDefault = deepMerge(false, {}, DEFAULTS);
+    const incomingOptions = options ? deepMerge(false, {}, options) : deepMerge(false, {}, DEFAULTS);
 
     try {
         const rawOptions = readFileSync(optionsPath, { encoding: 'utf8' });
         try {
-            fileOptions = deepMerge({}, workingDefault, JSON.parse(rawOptions));
-            return deepMerge(fileOptions, incomingOptions);
+            fileOptions = deepMerge(false, {}, workingDefault, JSON.parse(rawOptions));
+            return deepMerge(false, fileOptions, incomingOptions);
         } catch (e) {
             if (e instanceof SyntaxError) {
                 // lint the rawOptions to give better feedback since it is SyntaxError
@@ -1848,11 +1848,11 @@ function loadJsonOptions(optionsPath: string, options?: Options): JsonOptions {
             // check for dir
             mkdirSync(path.dirname(optionsPath), { recursive: true });
             writeFileSync(optionsPath, JSON.stringify(DEFAULTS, null, 4), { encoding: 'utf8' });
-            return deepMerge({}, DEFAULTS);
+            return deepMerge(false, {}, DEFAULTS);
         } else if (!existsSync(optionsPath)) {
             // directory is present, see if file was missing
             writeFileSync(optionsPath, JSON.stringify(DEFAULTS, null, 4), { encoding: 'utf8' });
-            return deepMerge({}, DEFAULTS);
+            return deepMerge(false, {}, DEFAULTS);
         } else {
             // something else is wrong, throw the error
             throw e;
@@ -1871,7 +1871,7 @@ export function removeCliOptions(incomingOptions: Options): void {
 }
 
 export function loadOptions(options?: Options): Options {
-    const incomingOptions = options ? deepMerge({}, options) : {};
+    const incomingOptions = options ? deepMerge(false, {}, options) : {};
     const steamAccountName = getOption('steamAccountName', '', String, incomingOptions);
     lintAllTheThings(getFilesPath(steamAccountName)); // you shall not pass
 
@@ -1919,7 +1919,7 @@ export function loadOptions(options?: Options): Options {
         throw new Error(errors.join(', '));
     }
 
-    return deepMerge(jsonOptions, envOptions, incomingOptions);
+    return deepMerge(false, jsonOptions, envOptions, incomingOptions);
 }
 
 export function getFilesPath(accountName: string): string {
